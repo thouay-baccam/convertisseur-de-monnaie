@@ -1,22 +1,29 @@
 from forex_python.converter import CurrencyRates
 
-def convertmonnaie(amount, source_currency, target_currency):
+def convert_currency(amount, from_currency, to_currency, history):
     c = CurrencyRates()
-    
-    try:
-        exchange_rate = c.get_rate(source_currency, target_currency)
-        converted_amount = amount * exchange_rate
-        return converted_amount
-    except:
-        return None
+    if c.get_rate(from_currency, to_currency) is None:
+        print("Conversion impossible. Veuillez vérifier les codes de devise.")
+        return
+    converted_amount = c.convert(from_currency, to_currency, amount)
+    print(f"{amount} {from_currency} équivaut à {converted_amount:.2f} {to_currency}")
+    history.append({'amount': amount, 'from_currency': from_currency, 'to_currency': to_currency, 'converted_amount': converted_amount})
 
-amount = float(input("Entrez la valeur à convertir : "))
-source_currency = input("Entrez la devise source (Exemple : USD) : ").upper()
-target_currency = input("Entrez la devise cible (Exemple : EUR): ").upper()
+def display_history(history):
+    print("\nHistorique des conversions :")
+    for entry in history:
+        print(f"{entry['amount']} {entry['from_currency']} -> {entry['converted_amount']} {entry['to_currency']}")
 
-result = convertmonnaie(amount, source_currency, target_currency)
+def main():
+    conversion_history = []
+    while True:
+        amount = float(input("Veuillez saisir la valeur à convertir : "))
+        from_currency = input("Veuillez saisir la devise source (Exemple : USD) : ").upper()
+        to_currency = input("Veuillez saisir la devise cible (Exemple : EUR) : ").upper()
+        convert_currency(amount, from_currency, to_currency, conversion_history)
+        another_conversion = input("Une autre conversion ? (Oui/Non) : ").lower()
+        if another_conversion != 'oui':
+            display_history(conversion_history)
+            break
 
-if result is not None:
-    print(f"{amount} {source_currency} correspond à {result:.2f} {target_currency}")
-else:
-    print("Conversion impossible.")
+main()
